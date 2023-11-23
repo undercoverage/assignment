@@ -1,0 +1,28 @@
+name: sigrid-pullrequest
+on: [pull_request]
+
+jobs:
+  sigridci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Download Sigrid CI
+        run: "git clone https://github.com/Software-Improvement-Group/sigridci.git sigridci"
+      - name: "Run Sigrid CI" 
+        env:
+          SIGRID_CI_TOKEN: "eyJraWQiOiJzaWcta2V5IiwiYWxnIjoiUlMyNTYifQ.eyJqdGkiOiI4MTM1M2VhMy1jN2I0LTQxNmQtYmU3Zi1jMjQzMWVmM2M4NTQiLCJzdWIiOiJkZmUzYzc1Ni1iNGUzLTQ3MzctODZhMi1kMDQ2M2U5NjBkY2QiLCJpc3MiOiJodHRwOi8vYXV0aGFwaTo4MDgwIiwiaWF0IjoxNzAwNzQxNzk1LCJleHAiOjE3MzIyNzc3OTUsImNvZ25pdG86Z3JvdXBzIjpbInNpZ3JpZHdvcmtzaG9wIl0sInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiIiwidXNlcm5hbWUiOiJkZmUzYzc1Ni1iNGUzLTQ3MzctODZhMi1kMDQ2M2U5NjBkY2QifQ.PSKRp2wvGmSgUsZmaNAsURLKWJNFj7ochkPEbwmgiaFZ75iMmtRhwTO3eaII64rGj52ZxYdf_Jf6gRECqoc9kaz0W_on3tiQI0Z9NTAJE8e3ZvHn71sDJJQbkKa--Wm8q1MX_mZgcThBE8ENvfTeNICHZN7aDwhHnOLWm1SUVQ-nwy75y6zzAhEnXQE648qU7XBqvRlHDC2twH0UfPUT1ZNm_o7G0OOh1uhefpnz0-LsgjYFaVXfgy4pNxUoSfUYZKjeONB16sfCwr7YOr7jYwwOymeSoZJmvaXvxsQ8z4Eu4Zwi5nSJcKRhIXhW9qcUNB4YYMpyknnS6QxA-DUaGg"
+        run: "./sigridci/sigridci/sigridci.py --customer <example_customer_name> --system <example_system_name> --source ."
+      - name: "Save Sigrid CI results"
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          path: "sigrid-ci-output/**"
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: "Sigrid pull request feedback"
+        uses: mshick/add-pr-comment@v2
+        if: always()
+        with:
+          message-id: sigrid
+          message-path: sigrid-ci-output/feedback.md
